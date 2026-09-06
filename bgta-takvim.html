@@ -200,8 +200,8 @@
   <div class="calendar" id="calendar"></div>
 
   <div class="legend">
-    <div class="legend-row"><span class="dot cyan"></span><span><b>B.GTA N</b> — GTA 6 çıkışına N gün var.</span></div>
-    <div class="legend-row"><span class="dot pink"></span><span><b>A.GTA N</b> — GTA 6 çıkalı N gün oldu.</span></div>
+    <div class="legend-row"><span class="dot" id="legendDot"></span><span><b id="legendLabel">—</b> — <span id="legendDesc">hesaplanıyor…</span></span></div>
+    <div class="legend-row"><span class="dot orange"></span><span>GTA 6 çıktığı gün sayaç <b>A.GTA</b>'ya döner ve o günden itibaren saymaya devam eder.</span></div>
     <div class="legend-row"><span class="dot orange"></span><span><b>GTA Günü</b> — 19 Kasım 2026, çıkış günü.</span></div>
   </div>
 
@@ -219,24 +219,36 @@
   const today = new Date();
   let viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  function renderHero(){
+  function renderStatus(){
     const diff = diffDays(RELEASE, today); // positive = before release
     const wordmark = document.getElementById('heroWordmark');
     const number = document.getElementById('heroNumber');
     const sub = document.getElementById('heroSub');
+    const legendDot = document.getElementById('legendDot');
+    const legendLabel = document.getElementById('legendLabel');
+    const legendDesc = document.getElementById('legendDesc');
 
     if (diff > 0){
       wordmark.textContent = 'B.GTA';
       number.textContent = diff;
       sub.textContent = diff === 1 ? 'GTA 6\'ya 1 gün kaldı' : `GTA 6\'ya ${diff} gün kaldı`;
+      legendDot.className = 'dot cyan';
+      legendLabel.textContent = 'B.GTA ' + diff;
+      legendDesc.textContent = diff === 1 ? 'GTA 6 çıkışına 1 gün var.' : `GTA 6 çıkışına ${diff} gün var.`;
     } else if (diff === 0){
       wordmark.textContent = 'GTA GÜNÜ';
       number.textContent = '🎮';
       sub.textContent = 'Bugün çıkıyor!';
+      legendDot.className = 'dot orange';
+      legendLabel.textContent = 'GTA Günü';
+      legendDesc.textContent = 'Bugün GTA 6 çıkıyor!';
     } else {
       wordmark.textContent = 'A.GTA';
       number.textContent = -diff;
       sub.textContent = (-diff) === 1 ? 'GTA 6 çıkalı 1 gün oldu' : `GTA 6 çıkalı ${-diff} gün oldu`;
+      legendDot.className = 'dot pink';
+      legendLabel.textContent = 'A.GTA ' + (-diff);
+      legendDesc.textContent = (-diff) === 1 ? 'GTA 6 çıkalı 1 gün oldu.' : `GTA 6 çıkalı ${-diff} gün oldu.`;
     }
   }
 
@@ -307,7 +319,7 @@
     renderCalendar();
   });
 
-  renderHero();
+  renderStatus();
   renderCalendar();
 })();
 </script>
