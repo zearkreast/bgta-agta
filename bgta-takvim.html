@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0714">
+<title>B.GTA Takvimi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0714;
+    --bg-panel:#170f28;
+    --bg-panel-hi:#20152f;
+    --pink:#ff3d9a;
+    --cyan:#21e6ff;
+    --orange:#ff7a3d;
+    --text:#f3ecff;
+    --muted:#9c8fc2;
+    --line:#2c1f42;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:var(--bg-deep);
+    color:var(--text);
+    font-family:'Space Grotesk', sans-serif;
+    min-height:100vh;
+    padding-bottom:env(safe-area-inset-bottom);
+    overflow-x:hidden;
+  }
+  .app{ max-width:480px; margin:0 auto; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:38px 20px 28px;
+    text-align:center;
+    overflow:hidden;
+    background:linear-gradient(180deg, #1a0b2e 0%, #170f28 55%, var(--bg-deep) 100%);
+    border-bottom:1px solid var(--line);
+  }
+  .sun{
+    position:absolute;
+    top:-70px; left:50%; transform:translateX(-50%);
+    width:220px; height:220px; border-radius:50%;
+    background:linear-gradient(180deg, #ffd23d, var(--pink) 55%, var(--cyan) 100%);
+    opacity:.5; filter:blur(2px);
+  }
+  .grid-floor{
+    position:absolute; left:0; right:0; bottom:-40px; height:150px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(33,230,255,.35) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(0deg, rgba(255,61,154,.28) 0 1px, transparent 1px 22px);
+    transform:perspective(220px) rotateX(58deg);
+    opacity:.6;
+  }
+  .hero-content{ position:relative; z-index:2; }
+  .eyebrow{
+    font-size:13px; letter-spacing:.04em; color:var(--muted); margin:0 0 6px;
+  }
+  .wordmark{
+    font-family:'Anton', sans-serif;
+    font-style:italic;
+    font-size:15px;
+    letter-spacing:.06em;
+    color:var(--cyan);
+    text-shadow:0 0 14px rgba(33,230,255,.5);
+    margin:0 0 2px;
+  }
+  .hero-number{
+    font-family:'Anton', sans-serif;
+    font-style:italic;
+    font-size:96px;
+    line-height:.95;
+    margin:2px 0 0;
+    background:linear-gradient(180deg, #fff, var(--pink) 85%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow:0 0 30px rgba(255,61,154,.25);
+  }
+  .hero-sub{
+    font-size:15px; color:var(--text); margin:6px 0 0; font-weight:500;
+  }
+  .hero-date{
+    font-size:13px; color:var(--muted); margin:4px 0 0;
+  }
+  .hero-note{
+    font-size:12px; color:var(--muted); margin:14px 0 0; opacity:.75;
+  }
+
+  /* ---------- CONTROLS ---------- */
+  .controls{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 16px 8px;
+    gap:8px;
+  }
+  .month-label{
+    font-size:17px; font-weight:700; letter-spacing:.01em;
+  }
+  .nav-buttons{ display:flex; gap:6px; }
+  button{
+    font-family:inherit; border:1px solid var(--line); background:var(--bg-panel);
+    color:var(--text); border-radius:10px; cursor:pointer;
+  }
+  .nav-btn{ width:38px; height:38px; font-size:16px; }
+  .nav-btn:active{ background:var(--bg-panel-hi); }
+  .today-btn{
+    font-size:13px; padding:8px 12px; color:var(--cyan); border-color:rgba(33,230,255,.35);
+  }
+  .today-btn:active{ background:rgba(33,230,255,.1); }
+  button:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+
+  /* ---------- CALENDAR ---------- */
+  .weekdays{
+    display:grid; grid-template-columns:repeat(7,1fr);
+    padding:4px 12px; gap:6px;
+  }
+  .weekdays span{
+    text-align:center; font-size:11px; color:var(--muted); font-weight:600;
+  }
+  .calendar{
+    display:grid; grid-template-columns:repeat(7,1fr);
+    gap:6px; padding:0 12px 8px;
+  }
+  .day{
+    position:relative;
+    aspect-ratio:1;
+    border-radius:12px;
+    background:var(--bg-panel);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border:1px solid transparent;
+  }
+  .day.empty{ background:transparent; }
+  .day .num{ font-size:14px; font-weight:600; }
+  .day .badge{
+    font-size:9.5px; font-weight:700; letter-spacing:.02em; margin-top:2px;
+  }
+  .day.before .badge{ color:var(--cyan); }
+  .day.after .badge{ color:var(--pink); }
+  .day.today{ border-color:var(--orange); box-shadow:0 0 0 1px var(--orange), 0 0 14px rgba(255,122,61,.35); }
+  .day.release{
+    background:linear-gradient(160deg, rgba(255,122,61,.25), rgba(255,61,154,.25));
+    border-color:var(--orange);
+  }
+  .day.release .num{ color:#ffd23d; }
+  .day.release .badge{ color:#ffd23d; }
+
+  /* ---------- LEGEND ---------- */
+  .legend{
+    margin:18px 16px 28px;
+    padding:16px;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.55;
+  }
+  .legend b{ color:var(--text); }
+  .legend-row{ display:flex; align-items:flex-start; gap:8px; margin-bottom:8px; }
+  .legend-row:last-child{ margin-bottom:0; }
+  .dot{ width:9px; height:9px; border-radius:50%; margin-top:5px; flex:none; }
+  .dot.cyan{ background:var(--cyan); }
+  .dot.pink{ background:var(--pink); }
+  .dot.orange{ background:#ffd23d; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hero">
+    <div class="sun"></div>
+    <div class="grid-floor"></div>
+    <div class="hero-content">
+      <p class="eyebrow">Bugün</p>
+      <p class="wordmark" id="heroWordmark">B.GTA</p>
+      <p class="hero-number" id="heroNumber">--</p>
+      <p class="hero-sub" id="heroSub">hesaplanıyor…</p>
+      <p class="hero-date">GTA VI çıkış tarihi: 19 Kasım 2026</p>
+      <p class="hero-note">(Rockstar'ın son açıkladığı tarih — değişmeyeceğine dair hiçbir garanti yok 👀)</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="nav-buttons">
+      <button class="nav-btn" id="prevBtn" aria-label="Önceki ay">‹</button>
+      <button class="nav-btn" id="nextBtn" aria-label="Sonraki ay">›</button>
+    </div>
+    <div class="month-label" id="monthLabel">—</div>
+    <button class="today-btn" id="todayBtn">Bugün</button>
+  </div>
+
+  <div class="weekdays">
+    <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+  </div>
+  <div class="calendar" id="calendar"></div>
+
+  <div class="legend">
+    <div class="legend-row"><span class="dot cyan"></span><span><b>B.GTA N</b> — GTA 6 çıkışına N gün var.</span></div>
+    <div class="legend-row"><span class="dot pink"></span><span><b>A.GTA N</b> — GTA 6 çıkalı N gün oldu.</span></div>
+    <div class="legend-row"><span class="dot orange"></span><span><b>GTA Günü</b> — 19 Kasım 2026, çıkış günü.</span></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const RELEASE = new Date(2026, 10, 19); // 19 Kasım 2026
+  const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function diffDays(a, b){ return Math.round((stripTime(a) - stripTime(b)) / 86400000); }
+  function mondayIndex(jsDay){ return (jsDay + 6) % 7; } // JS: 0=Sun -> shift so Monday=0
+
+  const today = new Date();
+  let viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  function renderHero(){
+    const diff = diffDays(RELEASE, today); // positive = before release
+    const wordmark = document.getElementById('heroWordmark');
+    const number = document.getElementById('heroNumber');
+    const sub = document.getElementById('heroSub');
+
+    if (diff > 0){
+      wordmark.textContent = 'B.GTA';
+      number.textContent = diff;
+      sub.textContent = diff === 1 ? 'GTA 6\'ya 1 gün kaldı' : `GTA 6\'ya ${diff} gün kaldı`;
+    } else if (diff === 0){
+      wordmark.textContent = 'GTA GÜNÜ';
+      number.textContent = '🎮';
+      sub.textContent = 'Bugün çıkıyor!';
+    } else {
+      wordmark.textContent = 'A.GTA';
+      number.textContent = -diff;
+      sub.textContent = (-diff) === 1 ? 'GTA 6 çıkalı 1 gün oldu' : `GTA 6 çıkalı ${-diff} gün oldu`;
+    }
+  }
+
+  function renderCalendar(){
+    const cal = document.getElementById('calendar');
+    const label = document.getElementById('monthLabel');
+    cal.innerHTML = '';
+
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    label.textContent = `${MONTHS[month]} ${year}`;
+
+    const firstOfMonth = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const leadingBlanks = mondayIndex(firstOfMonth.getDay());
+
+    for (let i = 0; i < leadingBlanks; i++){
+      const blank = document.createElement('div');
+      blank.className = 'day empty';
+      cal.appendChild(blank);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++){
+      const cellDate = new Date(year, month, d);
+      const diff = diffDays(RELEASE, cellDate);
+
+      const cell = document.createElement('div');
+      cell.className = 'day';
+
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.textContent = d;
+      cell.appendChild(num);
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+
+      if (diff === 0){
+        cell.classList.add('release');
+        badge.textContent = 'GTA';
+      } else if (diff > 0){
+        cell.classList.add('before');
+        badge.textContent = 'B' + diff;
+      } else {
+        cell.classList.add('after');
+        badge.textContent = 'A' + (-diff);
+      }
+      cell.appendChild(badge);
+
+      if (diffDays(cellDate, today) === 0){
+        cell.classList.add('today');
+      }
+
+      cal.appendChild(cell);
+    }
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', function(){
+    viewDate.setMonth(viewDate.getMonth() - 1);
+    renderCalendar();
+  });
+  document.getElementById('nextBtn').addEventListener('click', function(){
+    viewDate.setMonth(viewDate.getMonth() + 1);
+    renderCalendar();
+  });
+  document.getElementById('todayBtn').addEventListener('click', function(){
+    viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    renderCalendar();
+  });
+
+  renderHero();
+  renderCalendar();
+})();
+</script>
+</body>
+</html>
