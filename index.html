@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0714">
-<title>B.GTA Takvimi</title>
+<title id="pageTitle">B.GTA Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -176,41 +176,93 @@
     <div class="sun"></div>
     <div class="grid-floor"></div>
     <div class="hero-content">
-      <p class="eyebrow">Bugün</p>
+      <p class="eyebrow" id="eyebrowText">Today</p>
       <p class="wordmark" id="heroWordmark">B.GTA</p>
       <p class="hero-number" id="heroNumber">--</p>
-      <p class="hero-sub" id="heroSub">hesaplanıyor…</p>
-      <p class="hero-date">GTA VI çıkış tarihi: 19 Kasım 2026</p>
-      <p class="hero-note">(Rockstar'ın son açıkladığı tarih — değişmeyeceğine dair hiçbir garanti yok 👀)</p>
+      <p class="hero-sub" id="heroSub">calculating…</p>
+      <p class="hero-date" id="heroDateLine">GTA VI release date: November 19, 2026</p>
+      <p class="hero-note" id="heroNote">(Rockstar's latest announced date — no promises it won't change again 👀)</p>
     </div>
   </div>
 
   <div class="controls">
     <div class="nav-buttons">
-      <button class="nav-btn" id="prevBtn" aria-label="Önceki ay">‹</button>
-      <button class="nav-btn" id="nextBtn" aria-label="Sonraki ay">›</button>
+      <button class="nav-btn" id="prevBtn" aria-label="Previous month">‹</button>
+      <button class="nav-btn" id="nextBtn" aria-label="Next month">›</button>
     </div>
     <div class="month-label" id="monthLabel">—</div>
-    <button class="today-btn" id="todayBtn">Bugün</button>
+    <button class="today-btn" id="todayBtn">Today</button>
   </div>
 
-  <div class="weekdays">
-    <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
-  </div>
+  <div class="weekdays" id="weekdaysRow"></div>
   <div class="calendar" id="calendar"></div>
 
   <div class="legend">
-    <div class="legend-row"><span class="dot" id="legendDot"></span><span><b id="legendLabel">—</b> — <span id="legendDesc">hesaplanıyor…</span></span></div>
-    <div class="legend-row"><span class="dot orange"></span><span>GTA 6 çıktığı gün sayaç <b>A.GTA</b>'ya döner ve o günden itibaren saymaya devam eder.</span></div>
-    <div class="legend-row"><span class="dot orange"></span><span><b>GTA Günü</b> — 19 Kasım 2026, çıkış günü.</span></div>
+    <div class="legend-row"><span class="dot" id="legendDot"></span><span><b id="legendLabel">—</b> — <span id="legendDesc">calculating…</span></span></div>
+    <div class="legend-row"><span class="dot orange"></span><span id="legendTransition">On release day, the counter flips to A.GTA and keeps counting from there.</span></div>
+    <div class="legend-row"><span class="dot orange"></span><span><b id="legendReleaseLabel">GTA Day</b> — <span id="legendReleaseDesc">November 19, 2026 — release day.</span></span></div>
   </div>
 
 </div>
 
 <script>
 (function(){
-  const RELEASE = new Date(2026, 10, 19); // 19 Kasım 2026
-  const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const RELEASE = new Date(2026, 10, 19); // November 19, 2026
+
+  const translations = {
+    en: {
+      title: 'B.GTA Calendar',
+      today: 'Today',
+      releaseDateLine: 'GTA VI release date: November 19, 2026',
+      releaseNote: "(Rockstar's latest announced date — no promises it won't change again 👀)",
+      prevAria: 'Previous month',
+      nextAria: 'Next month',
+      todayBtn: 'Today',
+      weekdays: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+      gtaDayWordmark: 'GTA DAY',
+      gtaDayEmoji: '🎮',
+      gtaDaySub: "It's out today!",
+      beforeSub: n => n === 1 ? '1 day until GTA 6' : `${n} days until GTA 6`,
+      afterSub: n => n === 1 ? '1 day since GTA 6 launched' : `${n} days since GTA 6 launched`,
+      legendBeforeDesc: n => n === 1 ? 'GTA 6 releases in 1 day.' : `GTA 6 releases in ${n} days.`,
+      legendAfterDesc: n => n === 1 ? "It's been 1 day since GTA 6 released." : `It's been ${n} days since GTA 6 released.`,
+      legendGtaDayDesc: 'GTA 6 comes out today!',
+      legendGtaDayLabel: 'GTA Day',
+      legendTransition: 'On release day, the counter flips to A.GTA and keeps counting from there.',
+      legendReleaseLabel: 'GTA Day',
+      legendReleaseDesc: 'November 19, 2026 — release day.'
+    },
+    tr: {
+      title: 'B.GTA Takvimi',
+      today: 'Bugün',
+      releaseDateLine: 'GTA VI çıkış tarihi: 19 Kasım 2026',
+      releaseNote: "(Rockstar'ın son açıkladığı tarih — değişmeyeceğine dair hiçbir garanti yok 👀)",
+      prevAria: 'Önceki ay',
+      nextAria: 'Sonraki ay',
+      todayBtn: 'Bugün',
+      weekdays: ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'],
+      months: ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
+      gtaDayWordmark: 'GTA GÜNÜ',
+      gtaDayEmoji: '🎮',
+      gtaDaySub: 'Bugün çıkıyor!',
+      beforeSub: n => n === 1 ? "GTA 6'ya 1 gün kaldı" : `GTA 6'ya ${n} gün kaldı`,
+      afterSub: n => n === 1 ? 'GTA 6 çıkalı 1 gün oldu' : `GTA 6 çıkalı ${n} gün oldu`,
+      legendBeforeDesc: n => n === 1 ? 'GTA 6 çıkışına 1 gün var.' : `GTA 6 çıkışına ${n} gün var.`,
+      legendAfterDesc: n => n === 1 ? 'GTA 6 çıkalı 1 gün oldu.' : `GTA 6 çıkalı ${n} gün oldu.`,
+      legendGtaDayDesc: 'Bugün GTA 6 çıkıyor!',
+      legendGtaDayLabel: 'GTA Günü',
+      legendTransition: "GTA 6 çıktığı gün sayaç A.GTA'ya döner ve o günden itibaren saymaya devam eder.",
+      legendReleaseLabel: 'GTA Günü',
+      legendReleaseDesc: '19 Kasım 2026 — çıkış günü.'
+    }
+  };
+
+  const rawLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  const lang = rawLang.startsWith('tr') ? 'tr' : 'en';
+  const t = translations[lang];
+  document.documentElement.lang = lang;
+  document.title = t.title;
 
   function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
   function diffDays(a, b){ return Math.round((stripTime(a) - stripTime(b)) / 86400000); }
@@ -218,6 +270,26 @@
 
   const today = new Date();
   let viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  function applyStaticText(){
+    document.getElementById('eyebrowText').textContent = t.today;
+    document.getElementById('heroDateLine').textContent = t.releaseDateLine;
+    document.getElementById('heroNote').textContent = t.releaseNote;
+    document.getElementById('prevBtn').setAttribute('aria-label', t.prevAria);
+    document.getElementById('nextBtn').setAttribute('aria-label', t.nextAria);
+    document.getElementById('todayBtn').textContent = t.todayBtn;
+    document.getElementById('legendTransition').textContent = t.legendTransition;
+    document.getElementById('legendReleaseLabel').textContent = t.legendReleaseLabel;
+    document.getElementById('legendReleaseDesc').textContent = t.legendReleaseDesc;
+
+    const weekdaysRow = document.getElementById('weekdaysRow');
+    weekdaysRow.innerHTML = '';
+    t.weekdays.forEach(function(day){
+      const span = document.createElement('span');
+      span.textContent = day;
+      weekdaysRow.appendChild(span);
+    });
+  }
 
   function renderStatus(){
     const diff = diffDays(RELEASE, today); // positive = before release
@@ -231,24 +303,24 @@
     if (diff > 0){
       wordmark.textContent = 'B.GTA';
       number.textContent = diff;
-      sub.textContent = diff === 1 ? 'GTA 6\'ya 1 gün kaldı' : `GTA 6\'ya ${diff} gün kaldı`;
+      sub.textContent = t.beforeSub(diff);
       legendDot.className = 'dot cyan';
       legendLabel.textContent = 'B.GTA ' + diff;
-      legendDesc.textContent = diff === 1 ? 'GTA 6 çıkışına 1 gün var.' : `GTA 6 çıkışına ${diff} gün var.`;
+      legendDesc.textContent = t.legendBeforeDesc(diff);
     } else if (diff === 0){
-      wordmark.textContent = 'GTA GÜNÜ';
-      number.textContent = '🎮';
-      sub.textContent = 'Bugün çıkıyor!';
+      wordmark.textContent = t.gtaDayWordmark;
+      number.textContent = t.gtaDayEmoji;
+      sub.textContent = t.gtaDaySub;
       legendDot.className = 'dot orange';
-      legendLabel.textContent = 'GTA Günü';
-      legendDesc.textContent = 'Bugün GTA 6 çıkıyor!';
+      legendLabel.textContent = t.legendGtaDayLabel;
+      legendDesc.textContent = t.legendGtaDayDesc;
     } else {
       wordmark.textContent = 'A.GTA';
       number.textContent = -diff;
-      sub.textContent = (-diff) === 1 ? 'GTA 6 çıkalı 1 gün oldu' : `GTA 6 çıkalı ${-diff} gün oldu`;
+      sub.textContent = t.afterSub(-diff);
       legendDot.className = 'dot pink';
       legendLabel.textContent = 'A.GTA ' + (-diff);
-      legendDesc.textContent = (-diff) === 1 ? 'GTA 6 çıkalı 1 gün oldu.' : `GTA 6 çıkalı ${-diff} gün oldu.`;
+      legendDesc.textContent = t.legendAfterDesc(-diff);
     }
   }
 
@@ -259,7 +331,7 @@
 
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
-    label.textContent = `${MONTHS[month]} ${year}`;
+    label.textContent = `${t.months[month]} ${year}`;
 
     const firstOfMonth = new Date(year, month, 1);
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -319,6 +391,7 @@
     renderCalendar();
   });
 
+  applyStaticText();
   renderStatus();
   renderCalendar();
 })();
